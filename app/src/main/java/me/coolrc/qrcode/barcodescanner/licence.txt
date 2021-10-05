@@ -1,1 +1,0 @@
-this package is the kotlin version of https://github.com/zeeshan-elahi/BarcodeScannerAndCameraXDemo
