@@ -18,6 +18,7 @@
 
 package me.coolrc.qrcode.ui.main
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.graphics.Rect
 import android.graphics.RectF
@@ -28,6 +29,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewTreeObserver
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.camera.core.Camera
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageAnalysis
@@ -43,15 +46,14 @@ import com.google.common.util.concurrent.ListenableFuture
 import me.coolrc.qrcode.databinding.ScanFragmentBinding
 import me.coolrc.qrcode.overlay.QRCodeAnalyser
 import me.coolrc.qrcode.overlay.isPortraitMode
+import me.coolrc.qrcode.utils.Constraints
 import java.util.concurrent.Executors
 
-class ScanFragment : Fragment() {
+open class ScanFragment : Fragment() {
 
 
-    companion object{
-        private val TAG = "BarcodeScanningActivity"
-        val SCAN_RESULT = "qrcode"
-        val REQUEST_PERMISSION = 12345
+    companion object {
+        private const val TAG = "BarcodeScanningActivity"
     }
 
     private lateinit var cameraProviderFuture: ListenableFuture<ProcessCameraProvider>
@@ -66,6 +68,18 @@ class ScanFragment : Fragment() {
 
     private lateinit var binding: ScanFragmentBinding
 
+    private lateinit var camPermissionLauncher: ActivityResultLauncher<String>
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        camPermissionLauncher =
+            registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
+                if (!isGranted) {
+                    onRequestPermissionFailed()
+                }
+            }
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -73,21 +87,13 @@ class ScanFragment : Fragment() {
     ): View {
         binding = ScanFragmentBinding.inflate(layoutInflater)
 
-//        androidx.core.app.ActivityCompat.requestPermissions(
-//            this, arrayOf(android.Manifest.permission.CAMERA, android.Manifest.permission.WRITE_EXTERNAL_STORAGE),
-//            REQUEST_PERMISSION
-//        )
-
         cameraProviderFuture = ProcessCameraProvider.getInstance(requireContext())
         listener = OverlayListener()
         binding.overlay.viewTreeObserver.addOnGlobalLayoutListener(listener)
 
+        camPermissionLauncher.launch(Manifest.permission.CAMERA)
 
         return binding.root
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-//        bindAllCameraUseCases()
     }
 
     inner class OverlayListener : ViewTreeObserver.OnGlobalLayoutListener {
@@ -170,9 +176,13 @@ class ScanFragment : Fragment() {
     }
 
 
-    fun sendScannedCode(code: String) {
+    open fun sendScannedCode(code: String) {
         Log.e("result", code)
-        setFragmentResult(SCAN_RESULT, bundleOf("qrcode" to code))
+        setFragmentResult(Constraints.SCAN_RESULT, bundleOf("qrcode" to code))
+        findNavController().popBackStack()
+    }
+
+    open fun onRequestPermissionFailed() {
         findNavController().popBackStack()
     }
 

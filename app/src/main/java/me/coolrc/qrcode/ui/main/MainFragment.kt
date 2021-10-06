@@ -34,6 +34,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.setFragmentResultListener
 import androidx.navigation.findNavController
 import me.coolrc.qrcode.databinding.MainFragmentBinding
+import me.coolrc.qrcode.utils.Constraints
 
 class MainFragment : Fragment() {
 
@@ -41,25 +42,12 @@ class MainFragment : Fragment() {
         fun newInstance() = MainFragment()
     }
 
-    val viewModel: MainViewModel by activityViewModels()
+    private val viewModel: MainViewModel by activityViewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
-
         super.onCreate(savedInstanceState)
-
-        if (ContextCompat.checkSelfPermission(
-                requireContext(),
-                Manifest.permission.CAMERA
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            ActivityCompat.requestPermissions(
-                requireActivity(),
-                arrayOf(Manifest.permission.CAMERA),
-                0
-            )
-        }
         //监听二维码扫描结果
-        setFragmentResultListener("qrcode") { key, bundle ->
+        setFragmentResultListener(Constraints.SCAN_RESULT) { key, bundle ->
             val result = bundle.getString(key)
             viewModel.data.value = result
         }
