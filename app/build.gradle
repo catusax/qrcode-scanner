@@ -73,7 +73,7 @@ dependencies {
     // Jetpack Compose Integration
     implementation "androidx.navigation:navigation-compose:2.4.0-alpha10"
 
-    implementation(project(':qrcode-scanner'))
+    implementation(project(':library'))
 
     // https://github.com/SumiMakito/AwesomeQRCode
     implementation 'com.github.sumimakito:awesomeqrcode:1.2.0'

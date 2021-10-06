@@ -6,10 +6,6 @@ plugins {
 
 group 'com.github.coolrc136'
 
-artifacts {
-
-}
-
 android {
     compileSdk 31
 
