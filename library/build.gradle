@@ -32,6 +32,19 @@ android {
     kotlinOptions {
         jvmTarget = '1.8'
     }
+
+    afterEvaluate {
+        publishing {
+            publications {
+                release(MavenPublication) {
+                    from components.release
+                    groupId = 'com.github.coolrc136'
+                    artifactId = 'qrcode-scanner'
+                    version = '0.1'
+                }
+            }
+        }
+    }
 }
 
 dependencies {
