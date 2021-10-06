@@ -20,7 +20,7 @@
     author https://juejin.cn/post/6950448798208376839
  */
 
-package me.coolrc.qrcode.overlay
+package com.github.coolrc136.overlay
 
 import android.util.Log
 import androidx.camera.core.ImageAnalysis
