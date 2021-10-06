@@ -35,14 +35,17 @@ import androidx.camera.view.PreviewView
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.lifecycleScope
 import com.github.coolrc136.overlay.QRCodeAnalyser
 import com.github.coolrc136.overlay.ScanOverlay
 import com.github.coolrc136.overlay.isPortraitMode
 import com.google.common.util.concurrent.ListenableFuture
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import java.util.concurrent.Executors
 
 
-open class ScanFragment : Fragment() {
+abstract class ScanFragment : Fragment() {
 
     companion object {
         private const val TAG = "BarcodeScanningActivity"
@@ -53,8 +56,13 @@ open class ScanFragment : Fragment() {
     private var listener: OverlayListener? = null
 
     private var scaleX = 0f
-
     private var scaleY = 0f
+
+    /**
+     * delay time before send qrcode result to [onResult]
+     * @see [onResult]
+     */
+    var delayTime = 100L
 
     private lateinit var camPermissionLauncher: ActivityResultLauncher<String>
 
@@ -151,8 +159,13 @@ open class ScanFragment : Fragment() {
                         "bindScan: left:${it.left} right:${it.right} top:${it.top} bottom:${it.bottom}"
                     )
                 }
-                if (barcode.rawValue != null)
-                    sendScannedCode(barcode.rawValue!!)
+                if (barcode.rawValue != null) {
+                    lifecycleScope.launch {
+                        delay(delayTime)
+                        onResult(barcode.rawValue!!)
+                    }
+                }
+
             })
 
         //解绑当前所有相机操作
@@ -189,12 +202,14 @@ open class ScanFragment : Fragment() {
     }
 
 
-    open fun sendScannedCode(code: String) {
-        Log.i("result", code)
-    }
+    /**
+     * called when a qrcode result received, override this function to get scanning result
+     */
+    abstract fun onResult(code: String)
 
-    open fun onRequestPermissionFailed() {
-        Log.e("result", "Request Camera Permission Failed")
-    }
+    /**
+     * called when failed to request camera permission, override this function to handle permission denial
+     */
+    abstract fun onRequestPermissionFailed()
 
 }

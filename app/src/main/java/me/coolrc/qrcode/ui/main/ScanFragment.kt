@@ -18,6 +18,7 @@
 
 package me.coolrc.qrcode.ui.main
 
+import android.os.Bundle
 import android.util.Log
 import androidx.core.os.bundleOf
 import androidx.fragment.app.setFragmentResult
@@ -28,11 +29,16 @@ import me.coolrc.qrcode.utils.Constraints
 
 class ScanFragment : ScanFragment() {
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        delayTime = 100L
+    }
+
     override fun getLayoutId(): Int {
         return R.layout.scan_fragment
     }
 
-    override fun sendScannedCode(code: String) {
+    override fun onResult(code: String) {
         Log.e("result", code)
         setFragmentResult(Constraints.SCAN_RESULT, bundleOf("qrcode" to code))
         findNavController().popBackStack()

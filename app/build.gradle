@@ -74,6 +74,7 @@ dependencies {
     implementation "androidx.navigation:navigation-compose:2.4.0-alpha10"
 
     implementation(project(':library'))
+    implementation "androidx.camera:camera-view:1.0.0-alpha29"
 
     // https://github.com/SumiMakito/AwesomeQRCode
     implementation 'com.github.sumimakito:awesomeqrcode:1.2.0'
