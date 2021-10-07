@@ -29,7 +29,7 @@ dependencies {
 
 ### request camera permission
 
-add to you `AndroidManifest.xml`
+add to your `AndroidManifest.xml`
 
 ```xml
 
@@ -66,12 +66,24 @@ implementation "androidx.camera:camera-view:1.0.0-alpha29"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
     
+    <!-- display scanning anim -->
     <com.github.coolrc136.overlay.ScanOverlay
         android:id="@+id/overlay"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginTop="20dp"
         android:layout_marginBottom="10dp" />
+
+    <!-- (optional) button to turn on/off torch -->
+    <com.github.coolrc136.view.FlashBtn
+        android:id="@+id/flash_btn"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginBottom="40dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:contentDescription="@string/flash_light" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
 ```

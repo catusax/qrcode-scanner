@@ -25,14 +25,17 @@ import android.os.Bundle
 import android.util.Log
 import android.util.Size
 import android.view.*
+import android.widget.ImageView
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.camera.core.Camera
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.core.content.ContextCompat
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
@@ -68,6 +71,11 @@ abstract class ScanFragment : Fragment() {
 
     private lateinit var previewView: PreviewView
     private lateinit var overlay: ScanOverlay
+    private var flash: ImageView? = null
+
+    private lateinit var camera: Camera
+    private var isFlashOn = false
+
     var rotation: Int = Surface.ROTATION_0
 
     open fun getLayoutId(): Int {
@@ -106,14 +114,18 @@ abstract class ScanFragment : Fragment() {
         val view = inflater.inflate(getLayoutId(), container, false)
         previewView = view.findViewById(R.id.previewView)
         overlay = view.findViewById(R.id.overlay)
+        flash = view.findViewById(R.id.flash_btn)
+        return view
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
         cameraProviderFuture = ProcessCameraProvider.getInstance(requireContext())
         listener = OverlayListener()
         overlay.viewTreeObserver.addOnGlobalLayoutListener(listener)
 
         camPermissionLauncher.launch(Manifest.permission.CAMERA)
-
-        return view
     }
 
     inner class OverlayListener : ViewTreeObserver.OnGlobalLayoutListener {
@@ -121,6 +133,26 @@ abstract class ScanFragment : Fragment() {
             cameraProviderFuture.addListener({
                 val cameraProvider = cameraProviderFuture.get()
                 bindScan(cameraProvider, previewView.width, previewView.height)
+                if (!camera.cameraInfo.hasFlashUnit()) {
+                    flash?.isVisible = false
+                }
+
+                flash?.setOnClickListener {
+                    it.isClickable = false
+                    try {
+                        if (isFlashOn) {
+                            isFlashOn = false
+                            camera.cameraControl.enableTorch(false)
+                            flash?.setImageResource(R.drawable.flash_on)
+                        } else {
+                            isFlashOn = true
+                            camera.cameraControl.enableTorch(true)
+                            flash?.setImageResource(R.drawable.flash_off)
+                        }
+                    } finally {
+                        it.isClickable = true
+                    }
+                }
             }, ContextCompat.getMainExecutor(context))
             overlay.viewTreeObserver.removeOnGlobalLayoutListener(listener)
         }
@@ -172,7 +204,7 @@ abstract class ScanFragment : Fragment() {
         cameraProvider.unbindAll()
 
         //将相机绑定到当前控件的生命周期
-        cameraProvider.bindToLifecycle(
+        camera = cameraProvider.bindToLifecycle(
             this as LifecycleOwner,
             cameraSelector,
             imageAnalysis,
