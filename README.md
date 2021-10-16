@@ -23,7 +23,7 @@ Step 2. Add the dependency
 
 ```	kotlin
 dependencies {
-    implementation 'com.github.coolrc136:qrcode-scanner:0.4.0'
+    implementation 'com.github.coolrc136:qrcode-scanner:0.5.0'
 }
 ```
 
@@ -51,7 +51,7 @@ id `previewView` and `overlay`:
 
 ```kotlin
 // camera-view dependency
-implementation "androidx.camera:camera-view:1.0.0-alpha29"
+implementation "androidx.camera:camera-view:1.0.0-alpha30"
 ```
 
 ```xml
