@@ -23,7 +23,7 @@ Step 2. Add the dependency
 
 ```	kotlin
 dependencies {
-    implementation 'com.github.coolrc136:qrcode-scanner:0.2.0'
+    implementation 'com.github.coolrc136:qrcode-scanner:0.4.0'
 }
 ```
 

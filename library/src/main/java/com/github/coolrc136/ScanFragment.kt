@@ -19,10 +19,10 @@
 package com.github.coolrc136
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.graphics.Rect
 import android.graphics.RectF
 import android.os.Bundle
-import android.util.Log
 import android.util.Size
 import android.view.*
 import android.widget.ImageView
@@ -158,12 +158,35 @@ abstract class ScanFragment : Fragment() {
         }
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     private fun bindScan(cameraProvider: ProcessCameraProvider, width: Int, height: Int) {
 
-        Log.i(TAG, "bindScan: width:$width height:$height")
+//        Log.i(TAG, "bindScan: width:$width height:$height")
+
 
         val preview: Preview = Preview.Builder()
             .build()
+
+        // 创建一个名为 listener 的回调函数，当手势事件发生时会调用这个回调函数
+        val listener = object : ScaleGestureDetector.SimpleOnScaleGestureListener() {
+            override fun onScale(detector: ScaleGestureDetector): Boolean {
+                // 获取当前的摄像头的缩放比例
+                val currentZoomRatio: Float = camera.cameraInfo.zoomState.value?.zoomRatio ?: 1F
+
+                // 获取用户捏拉手势所更改的缩放比例
+                val delta = detector.scaleFactor
+
+                // 更新摄像头的缩放比例
+                camera.cameraControl.setZoomRatio(currentZoomRatio * delta)
+                return true
+            }
+        }
+        val scaleGestureDetector = ScaleGestureDetector(context, listener)
+
+        previewView.setOnTouchListener { _, event ->
+            scaleGestureDetector.onTouchEvent(event)
+            return@setOnTouchListener true
+        }
 
         //绑定预览
         preview.setSurfaceProvider(previewView.surfaceProvider)
@@ -186,10 +209,10 @@ abstract class ScanFragment : Fragment() {
                 initScale(imageWidth, imageHeight)
                 barcode.boundingBox?.let {//扫描二维码的外边框矩形
                     overlay.addRect(translateRect(it))
-                    Log.i(
-                        TAG,
-                        "bindScan: left:${it.left} right:${it.right} top:${it.top} bottom:${it.bottom}"
-                    )
+//                    Log.i(
+//                        TAG,
+//                        "bindScan: left:${it.left} right:${it.right} top:${it.top} bottom:${it.bottom}"
+//                    )
                 }
                 if (barcode.rawValue != null) {
                     lifecycleScope.launch {
