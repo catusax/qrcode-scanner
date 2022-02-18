@@ -38,13 +38,10 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.lifecycleScope
 import com.github.coolrc136.overlay.QRCodeAnalyser
 import com.github.coolrc136.overlay.ScanOverlay
 import com.github.coolrc136.overlay.isPortraitMode
 import com.google.common.util.concurrent.ListenableFuture
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import java.util.concurrent.Executors
 
 
@@ -60,12 +57,6 @@ abstract class ScanFragment : Fragment() {
 
     private var scaleX = 0f
     private var scaleY = 0f
-
-    /**
-     * delay time before send qrcode result to [onResult]
-     * @see [onResult]
-     */
-    var delayTime = 100L
 
     private lateinit var camPermissionLauncher: ActivityResultLauncher<String>
 
@@ -207,18 +198,12 @@ abstract class ScanFragment : Fragment() {
             QRCodeAnalyser { barcode, imageWidth, imageHeight ->
                 //初始化缩放比例
                 initScale(imageWidth, imageHeight)
-                barcode.boundingBox?.let {//扫描二维码的外边框矩形
-                    overlay.addRect(translateRect(it))
-//                    Log.i(
-//                        TAG,
-//                        "bindScan: left:${it.left} right:${it.right} top:${it.top} bottom:${it.bottom}"
-//                    )
-                }
+                overlay.changeRect(translateRect(barcode.boundingBox))//扫描二维码的位置
                 if (barcode.rawValue != null) {
-                    lifecycleScope.launch {
-                        delay(delayTime)
-                        onResult(barcode.rawValue!!)
-                    }
+//                    lifecycleScope.launch {
+//                        delay(delayTime)
+                    onResult(barcode.rawValue!!)
+//                    }
                 }
 
             })
@@ -239,12 +224,16 @@ abstract class ScanFragment : Fragment() {
     private fun translateY(y: Float): Float = y * scaleY
 
     //将扫描的矩形换算为当前屏幕大小
-    private fun translateRect(rect: Rect) = RectF(
-        translateX(rect.left.toFloat()),
-        translateY(rect.top.toFloat()),
-        translateX(rect.right.toFloat()),
-        translateY(rect.bottom.toFloat())
-    )
+    private fun translateRect(rect: Rect?): RectF? = if (rect != null) {
+        RectF(
+            translateX(rect.left.toFloat()),
+            translateY(rect.top.toFloat()),
+            translateX(rect.right.toFloat()),
+            translateY(rect.bottom.toFloat())
+        )
+    } else {
+        null
+    }
 
     private fun initScale(imageWidth: Int, imageHeight: Int) {
         if (isPortraitMode(requireContext())) {

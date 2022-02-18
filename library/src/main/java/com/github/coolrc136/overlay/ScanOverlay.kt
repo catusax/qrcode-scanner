@@ -91,9 +91,13 @@ class ScanOverlay(context: Context, attrs: AttributeSet?) : View(context, attrs)
         return animator!!
     }
 
-    fun addRect(rect: RectF) {
-        showLine = false
+    fun changeRect(rect: RectF?) {
         resultRect = rect
+        invalidate()
+    }
+
+    fun stopAnim() {
+        showLine = false
         getAnimator().cancel()
         invalidate()
     }

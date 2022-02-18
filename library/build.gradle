@@ -33,7 +33,7 @@ android {
 
     afterEvaluate {
         publishing {
-            def versionName = "0.3.0"
+            def versionName = "0.6.0"
             publications {
                 release(MavenPublication) {
                     from components.release
