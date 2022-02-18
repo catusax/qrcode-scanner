@@ -29,9 +29,12 @@ import android.util.TypedValue
 import android.view.View
 import androidx.annotation.ColorInt
 import com.github.coolrc136.R
+import kotlinx.coroutines.*
 
 
 class ScanOverlay(context: Context, attrs: AttributeSet?) : View(context, attrs) {
+
+    private var cancelDotJob: Job? = null
 
     private var paint = Paint(Paint.ANTI_ALIAS_FLAG)
 
@@ -92,8 +95,20 @@ class ScanOverlay(context: Context, attrs: AttributeSet?) : View(context, attrs)
     }
 
     fun changeRect(rect: RectF?) {
-        resultRect = rect
-        invalidate()
+        if (rect != resultRect) {
+            resultRect = rect
+
+            if (rect != null) {
+                cancelDotJob?.cancel()
+                cancelDotJob = CoroutineScope(Dispatchers.Main).launch {
+                    delay(500)
+                    resultRect = null
+                    invalidate()
+                }
+            }
+
+            invalidate()
+        }
     }
 
     fun stopAnim() {
@@ -101,4 +116,5 @@ class ScanOverlay(context: Context, attrs: AttributeSet?) : View(context, attrs)
         getAnimator().cancel()
         invalidate()
     }
+
 }

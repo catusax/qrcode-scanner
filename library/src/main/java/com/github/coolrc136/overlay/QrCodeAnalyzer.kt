@@ -62,7 +62,7 @@ class QRCodeAnalyser(private val listener: (Barcode, Int, Int) -> Unit) : ImageA
 //                    detector.close()
                 }
             }
-            .addOnFailureListener { Log.d(TAG, "Error: ${it.message}") }
+            .addOnFailureListener { Log.e(TAG, "Error: ${it.message}") }
             .addOnCompleteListener { imageProxy.close() }
 
     }

@@ -69,6 +69,8 @@ abstract class ScanFragment : Fragment() {
 
     var rotation: Int = Surface.ROTATION_0
 
+    var showDot = true
+
     open fun getLayoutId(): Int {
         return R.layout.fragment_scan
     }
@@ -200,12 +202,12 @@ abstract class ScanFragment : Fragment() {
                 initScale(imageWidth, imageHeight)
                 overlay.changeRect(translateRect(barcode.boundingBox))//扫描二维码的位置
                 if (barcode.rawValue != null) {
+                    if (showDot)
 //                    lifecycleScope.launch {
 //                        delay(delayTime)
-                    onResult(barcode.rawValue!!)
+                        onResult(barcode.rawValue!!)
 //                    }
                 }
-
             })
 
         //解绑当前所有相机操作
