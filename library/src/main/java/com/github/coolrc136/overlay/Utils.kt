@@ -39,7 +39,7 @@ fun Float.toPx(): Int {
 }
 
 
-fun isPortraitMode(context: Context): Boolean {
-    val mConfiguration: Configuration = context.resources.configuration //获取设置的配置信息
-    return mConfiguration.orientation == Configuration.ORIENTATION_PORTRAIT
+fun isPortraitMode(context: Context?): Boolean {
+    val mConfiguration = context?.resources?.configuration //获取设置的配置信息
+    return mConfiguration?.orientation == Configuration.ORIENTATION_PORTRAIT
 }

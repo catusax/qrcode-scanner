@@ -38,10 +38,13 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.lifecycleScope
 import com.github.coolrc136.overlay.QRCodeAnalyser
 import com.github.coolrc136.overlay.ScanOverlay
 import com.github.coolrc136.overlay.isPortraitMode
 import com.google.common.util.concurrent.ListenableFuture
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import java.util.concurrent.Executors
 
 
@@ -50,6 +53,14 @@ abstract class ScanFragment : Fragment() {
     companion object {
         private const val TAG = "BarcodeScanningActivity"
     }
+
+    /**
+     * delay time before send qrcode result to [onResult]
+     * @see [onResult]
+     */
+    var delayTime = 100L
+
+    var showDot = true
 
     private lateinit var cameraProviderFuture: ListenableFuture<ProcessCameraProvider>
 
@@ -67,9 +78,7 @@ abstract class ScanFragment : Fragment() {
     private lateinit var camera: Camera
     private var isFlashOn = false
 
-    var rotation: Int = Surface.ROTATION_0
-
-    var showDot = true
+    private var rotation: Int = Surface.ROTATION_0
 
     open fun getLayoutId(): Int {
         return R.layout.fragment_scan
@@ -200,13 +209,14 @@ abstract class ScanFragment : Fragment() {
             QRCodeAnalyser { barcode, imageWidth, imageHeight ->
                 //初始化缩放比例
                 initScale(imageWidth, imageHeight)
-                overlay.changeRect(translateRect(barcode.boundingBox))//扫描二维码的位置
+                if (showDot)
+                    overlay.changeRect(translateRect(barcode.boundingBox))//扫描二维码的位置
                 if (barcode.rawValue != null) {
-                    if (showDot)
-//                    lifecycleScope.launch {
-//                        delay(delayTime)
+
+                    lifecycleScope.launch {
+                        delay(delayTime)
                         onResult(barcode.rawValue!!)
-//                    }
+                    }
                 }
             })
 
@@ -238,7 +248,7 @@ abstract class ScanFragment : Fragment() {
     }
 
     private fun initScale(imageWidth: Int, imageHeight: Int) {
-        if (isPortraitMode(requireContext())) {
+        if (isPortraitMode(context)) {
             scaleY = overlay.height.toFloat() / imageWidth.toFloat()
             scaleX = overlay.width.toFloat() / imageHeight.toFloat()
         } else {

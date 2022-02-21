@@ -27,16 +27,19 @@ import me.coolrc.qrcode.R
 import me.coolrc.qrcode.utils.Constraints
 
 class ScanFragment : ScanFragment() {
+    var exited = false
 
     override fun getLayoutId(): Int {
         return R.layout.scan_fragment
     }
 
     override fun onResult(code: String) {
-        Log.e("result", code)
-        setFragmentResult(Constraints.SCAN_RESULT, bundleOf("qrcode" to code))
-        Thread.sleep(100)
-        findNavController().popBackStack()
+        if (!exited) {
+            Log.e("result", code)
+            setFragmentResult(Constraints.SCAN_RESULT, bundleOf("qrcode" to code))
+            exited = true
+            findNavController().popBackStack()
+        }
     }
 
     override fun onRequestPermissionFailed() {
